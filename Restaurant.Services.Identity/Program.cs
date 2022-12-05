@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Restaurant.Services.Identity;
 using Restaurant.Services.Identity.DbContexts;
+using Restaurant.Services.Identity.Initializer;
 using Restaurant.Services.Identity.Pages.Application;
+using static System.Formats.Asn1.AsnWriter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,8 @@ var identityServer = builder.Services.AddIdentityServer(options =>
 .AddInMemoryClients(Details.Clients)
 .AddAspNetIdentity<ApplicationUser>;
 
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
 
 var app = builder.Build();
 
@@ -46,7 +50,18 @@ app.UseRouting();
 app.UseIdentityServer();
 
 app.UseAuthorization();
-
 app.MapRazorPages();
 
+//var init = builder.Services.BuildServiceProvider().GetService<IDbInitializer>();
+//init.InitializeAsync();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+    dbInitializer.InitializeAsync();
+}
+
 app.Run();
+
+
+
