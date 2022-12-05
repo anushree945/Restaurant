@@ -52,14 +52,9 @@ app.UseIdentityServer();
 app.UseAuthorization();
 app.MapRazorPages();
 
-//var init = builder.Services.BuildServiceProvider().GetService<IDbInitializer>();
-//init.InitializeAsync();
-
-using (var scope = app.Services.CreateScope())
-{
-    var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-    dbInitializer.InitializeAsync();
-}
+var scope = app.Services.CreateScope();
+var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+dbInitializer.InitializeAsync();
 
 app.Run();
 
